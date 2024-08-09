@@ -6,6 +6,7 @@ import os
 from tensorflow.keras.applications.densenet import preprocess_input as densenet_preprocess_input
 
 # Load the trained models
+
 densenet_model_path = 'densenet121.keras'
 
 try:
@@ -13,9 +14,7 @@ try:
     st.success("DenseNet121 model loaded successfully.")
 except Exception as e:
     st.error(f"Error loading DenseNet121 model: {e}")
-    densenet_model = None
 
-# Function to preprocess and predict using a specified model
 def preprocess_and_predict(image_path, model, preprocess_input, target_size):
     try:
         img = image.load_img(image_path, target_size=target_size)
@@ -28,20 +27,17 @@ def preprocess_and_predict(image_path, model, preprocess_input, target_size):
         st.error(f"Error during prediction: {e}")
         return None
 
+
 # Function to interpret predictions
 def interpret_predictions(predictions):
-    try:
-        real_prob, fake_prob = predictions[0]
-        if real_prob > fake_prob:
-            label = "Real"
-            confidence = real_prob
-        else:
-            label = "Fake"
-            confidence = fake_prob
-        return label, confidence
-    except Exception as e:
-        st.error(f"Error interpreting predictions: {e}")
-        return "Error", 0
+    real_prob, fake_prob = predictions[0]
+    if real_prob > fake_prob:
+        label = "Real"
+        confidence = real_prob
+    else:
+        label = "Fake"
+        confidence = fake_prob
+    return label, confidence
 
 # Streamlit app
 st.title("Deepfake Detection using DenseNet121")
@@ -60,15 +56,15 @@ if uploaded_file is not None:
 
     st.image(uploaded_file, caption='Uploaded Image', use_column_width=True)
 
-    # Predict using DenseNet121
-    if densenet_model:
-        st.subheader("DenseNet121 Prediction")
-        
-        densenet_predictions = preprocess_and_predict(temp_file_path, densenet_model, densenet_preprocess_input, (224, 224))
-        
-        if densenet_predictions is not None:
-            st.write(f"Predictions shape: {densenet_predictions.shape}")
-            st.write(f"Model output shape: {densenet_model.output_shape}")
 
-            densenet_label, densenet_confidence = interpret_predictions(densenet_predictions)
-            st.write(f"Prediction: {densenet_label} (Confidence: {densenet_confidence:.2f})")
+    # Predict using DenseNet121
+ if densenet_model:
+    st.subheader("DenseNet121 Prediction")
+    densenet_predictions = preprocess_and_predict(temp_file_path, densenet_model, densenet_preprocess_input, (224, 224))
+    
+    if densenet_predictions is not None:
+        st.write(f"Predictions shape: {densenet_predictions.shape}")
+        st.write(f"Model output shape: {densenet_model.output_shape}")
+
+        densenet_label, densenet_confidence = interpret_predictions(densenet_predictions)
+        st.write(f"Prediction: {densenet_label} (Confidence: {densenet_confidence:.2f})")
