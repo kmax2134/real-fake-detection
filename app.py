@@ -31,7 +31,7 @@ def get_resnet50_model(input_shape=(128, 128, 3), num_classes=2):
 # Function to define the Xception model
 def get_xception_model(input_shape=(128, 128, 3), num_classes=2):
     input = tf.keras.Input(shape=input_shape)
-    xception_base = Xception(weights=None, include_top=False, input_tensor=input)
+    xception_base = Xception(weights='imagenet', include_top=False, input_tensor=input)
     x = tf.keras.layers.GlobalAveragePooling2D()(xception_base.output)
     x = tf.keras.layers.Dense(512, activation='relu')(x)
     x = tf.keras.layers.BatchNormalization()(x)
@@ -41,19 +41,19 @@ def get_xception_model(input_shape=(128, 128, 3), num_classes=2):
     return model
 
 # Load the models with weights
-def load_model_weights(model, weights_path):
-    try:
-        model.load_weights(weights_path, by_name=True, skip_mismatch=True)
-        st.success(f"Model loaded successfully from {weights_path}.")
-    except Exception as e:
-        st.error(f"Failed to load the model from {weights_path}: {str(e)}")
+try:
+    model_resnet = get_resnet50_model()
+    model_resnet.load_weights(model_path_resnet)
+    st.success("ResNet50 model loaded successfully.")
+except Exception as e:
+    st.error(f"Failed to load the ResNet50 model: {str(e)}")
 
-# Load models
-model_resnet = get_resnet50_model()
-model_xception = get_xception_model()
-
-load_model_weights(model_resnet, model_path_resnet)
-load_model_weights(model_xception, model_path_xception)
+try:
+    model_xception = get_xception_model()
+    model_xception.load_weights(model_path_xception)
+    st.success("Xception model loaded successfully.")
+except Exception as e:
+    st.error(f"Failed to load the Xception model: {str(e)}")
 
 # Function to preprocess the image for ResNet50
 def preprocess_image_resnet(img):
