@@ -8,7 +8,7 @@ from tensorflow.keras.models import load_model
 from PIL import Image
 
 # Path to saved Xception model file (Update this path to your actual model file)
-model_path_xception = 'path_to_xception_model.h5'  # Replace with your Xception model path
+model_path_xception = 'xception.h5'  # Replace with your Xception model path
 
 # Define class labels (Adjust these labels according to your dataset)
 class_labels = ['Fake', 'Real']
