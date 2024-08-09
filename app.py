@@ -7,8 +7,8 @@ from tensorflow.keras.preprocessing import image as keras_image
 from PIL import Image
 
 # Path to the saved models (Update these paths to your actual model files)
-model_path_resnet = 'path_to_resnet_model.h5'  # Replace with your ResNet50 model path
-model_path_xception = 'path_to_xception_model.h5'  # Replace with your Xception model path
+model_path_resnet = 'resnet50.h5'  # Replace with your ResNet50 model path
+model_path_xception = 'xception.h5'  # Replace with your Xception model path
 
 # Define class labels (Adjust these labels according to your dataset)
 class_labels = ['Fake', 'Real']
