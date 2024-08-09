@@ -85,7 +85,8 @@ st.write("Upload an image to classify it as Real or Fake.")
 
 # Model selection
 model_choice = st.selectbox("Choose a model", ("ResNet50", "Xception"))
-
+# Confidence threshold slider
+confidence_threshold = st.slider("Confidence threshold:", 0.0, 1.0, 0.5, 0.01)
 
 # Single image uploader
 uploaded_file = st.file_uploader("Choose an image...", type=['jpg', 'jpeg', 'png'])
