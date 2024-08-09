@@ -1,13 +1,14 @@
 import streamlit as st
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.applications import Xception
+from tensorflow.keras.applications import Xception, ResNet50
 from tensorflow.keras.applications.xception import preprocess_input as preprocess_input_xception
+from tensorflow.keras.applications.resnet50 import preprocess_input as preprocess_input_resnet
 from tensorflow.keras.preprocessing import image as keras_image
 from tensorflow.keras.models import load_model
 from PIL import Image
 
-# Path to saved Xception model file (Update this path to your actual model file)
+# Paths to saved model files (Update these paths to your actual model files)
 model_path_xception = 'xception.h5'  # Replace with your Xception model path
 
 # Define class labels (Adjust these labels according to your dataset)
@@ -25,24 +26,29 @@ def get_xception_model(input_shape=(128, 128, 3), num_classes=2):
     model = tf.keras.Model(inputs=xception_base.input, outputs=output)
     return model
 
-# Load the Xception model with weights
+
+# Load the models with weights
 try:
     model_xception = get_xception_model()
     model_xception.load_weights(model_path_xception)
-    st.success("Xception model loaded successfully.")
+
+
+    st.success("Models loaded successfully.")
 except Exception as e:
-    st.error(f"Failed to load the Xception model: {str(e)}")
+    st.error(f"Failed to load models: {str(e)}")
 
 # Function to preprocess the image
-def preprocess_image(img):
+def preprocess_image(img, model_name):
     img = img.resize((128, 128))  # Resize image to 128x128 pixels
     img_array = keras_image.img_to_array(img)  # Convert image to array
     img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
-    return preprocess_input_xception(img_array)
+
+    if model_name == 'Xception':
+        return preprocess_input_xception(img_array)
 
 # Function to make predictions
-def predict_image(img, model):
-    img_array = preprocess_image(img)
+def predict_image(img, model, model_name):
+    img_array = preprocess_image(img, model_name)
     prediction = model.predict(img_array)
     predicted_class = np.argmax(prediction, axis=1)[0]
     predicted_label = class_labels[predicted_class]
@@ -50,8 +56,17 @@ def predict_image(img, model):
     return predicted_label, confidence
 
 # Streamlit UI
-st.title("Real vs Fake Image Detection using Xception")
+st.title("Real vs Fake Image Detection")
 st.write("Upload an image to classify it as Real or Fake.")
+
+# Model selection
+model_option = st.selectbox(
+    "Select the model to use:",
+    ("Xception", "ResNet50")
+)
+
+# Load the selected model
+selected_model = model_xception if model_option == "Xception" else model_resnet
 
 # Confidence threshold slider
 confidence_threshold = st.slider(
@@ -77,7 +92,7 @@ if uploaded_file is not None:
     st.image(image, caption='Uploaded Image', use_column_width=True)
     
     with st.spinner('Classifying...'):
-        label, confidence = predict_image(image, model_xception)
+        label, confidence = predict_image(image, selected_model, model_option)
         display_result(label, confidence)
 
 # Multiple images prediction
@@ -88,5 +103,5 @@ if uploaded_files:
         st.image(image, caption=f'Image: {file.name}', use_column_width=True)
         
         with st.spinner(f'Classifying {file.name}...'):
-            label, confidence = predict_image(image, model_xception)
-            display_result(label, confidence)  
+            label, confidence = predict_image(image, selected_model, model_option)
+            display_result(label, confidence)
