@@ -14,5 +14,36 @@ This project is a deep learning application designed to classify images as eithe
    ```bash
    git clone https://github.com/your-username/real-vs-fake-image-detection.git
    cd real-vs-fake-image-detection
+   
+2. **Create a Virtual Environment**:
+python -m venv venv
+source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+
+3. **Install the Required Packages**:
+pip install -r requirements.txt
+
+4. **Download Pre-Trained Models**:
+Make sure you have your pre-trained model weights saved as resnet50.h5, xception.h5, and densenet121.h5.
+Place these files in the root directory of the project.
+
+
+Usage
+Run the Streamlit App:
+
+bash
+Copy code
+streamlit run app.py
+Upload Images:
+
+Use the single image uploader to upload one image at a time.
+Use the multiple images uploader for batch processing.
+View Predictions:
+
+The app will display the prediction for each model (ResNet50, Xception, DenseNet121) along with the confidence scores.
+The final prediction is determined by a majority vote and is displayed with the average confidence.
+Project Structure
+app.py: Main application file containing the Streamlit interface and model prediction logic.
+requirements.txt: Lists all Python packages required to run the project.
+resnet50.h5, xception.h5, densenet121.h5: Pre-trained model weights (not included in the repository).
 
  
