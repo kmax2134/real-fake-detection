@@ -6,7 +6,7 @@ import os
 from tensorflow.keras.applications.densenet import DenseNet121, preprocess_input as densenet_preprocess_input
 
 # Path to the weights file
-densenet_weights_path = 'densenet121_weights.h5'
+densenet_weights_path = 'densenet121.keras'
 
 # Load the DenseNet121 model with the specified weights
 try:
