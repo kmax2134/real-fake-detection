@@ -3,6 +3,9 @@ import tensorflow as tf
 from tensorflow.keras.models import load_model
 from PIL import Image
 import numpy as np
+from tensorflow.keras.applications import ResNet50, Xception
+from tensorflow.keras.applications.xception import preprocess_input as preprocess_input_xception
+from tensorflow.keras.preprocessing import image as keras_image
 
 # Path to the saved models (Update these paths to your actual model files)
 model_path_resnet = 'resnet50.h5'  # Replace with your ResNet50 model path
