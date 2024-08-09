@@ -7,8 +7,8 @@ from tensorflow.keras.preprocessing import image as keras_image
 from PIL import Image
 
 # Path to the saved models (Update these paths to your actual model files)
-model_path_resnet = 'resnet50.h5'  # Replace with your ResNet50 model path
-model_path_xception = 'xception.h5'  # Replace with your Xception model path
+model_path_resnet = 'path_to_resnet_model.h5'  # Replace with your ResNet50 model path
+model_path_xception = 'path_to_xception_model.h5'  # Replace with your Xception model path
 
 # Define class labels (Adjust these labels according to your dataset)
 class_labels = ['Fake', 'Real']
@@ -85,8 +85,6 @@ st.write("Upload an image to classify it as Real or Fake.")
 
 # Model selection
 model_choice = st.selectbox("Choose a model", ("ResNet50", "Xception"))
-# Confidence threshold slider
-confidence_threshold = st.slider("Confidence threshold:", 0.0, 1.0, 0.5, 0.01)
 
 # Single image uploader
 uploaded_file = st.file_uploader("Choose an image...", type=['jpg', 'jpeg', 'png'])
@@ -98,8 +96,6 @@ uploaded_files = st.file_uploader("Choose multiple images...", type=['jpg', 'jpe
 def display_result(label, confidence):
     st.write(f"Prediction: **{label}**")
     st.write(f"Confidence: **{confidence * 100:.2f}%**")
-    if confidence < confidence_threshold:
-        st.write(f"⚠️ Confidence is below the threshold of {confidence_threshold * 100:.2f}%.")
 
 # Single image prediction
 if uploaded_file is not None:
