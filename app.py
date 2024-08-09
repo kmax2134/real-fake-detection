@@ -7,7 +7,8 @@ from tensorflow.keras.applications import ResNet50, Xception
 from tensorflow.keras.applications.xception import preprocess_input as preprocess_input_xception
 from tensorflow.keras.preprocessing import image as keras_image
 
-# Path to the saved models (Update these paths to your actual model files)
+
+# Paths to the saved models (Update these paths to your actual model files)
 model_path_resnet = 'resnet50.h5'  # Replace with your ResNet50 model path
 model_path_xception = 'xception.h5'  # Replace with your Xception model path
 
