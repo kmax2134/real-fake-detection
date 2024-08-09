@@ -1,9 +1,7 @@
 import streamlit as st
 import numpy as np
-import tensorflow as tf
-from tensorflow.keras.applications import ResNet50, Xception
+from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image as keras_image
-from tensorflow.keras import layers, Sequential
 from PIL import Image
 
 # Paths to saved models (Update these paths to your actual model files)
@@ -13,48 +11,16 @@ model_path_xception = 'xception.h5'
 # Define class labels (Adjust these labels according to your dataset)
 class_labels = ['Fake', 'Real']
 
-# Define the ResNet50 model
-def get_resnet50_model(input_shape=(128, 128, 3), num_classes=2):
-    resnet_base = ResNet50(weights=None, include_top=False, input_shape=input_shape)
-    model = Sequential([
-        resnet_base,
-        layers.GlobalAveragePooling2D(),
-        layers.Dense(512, activation='relu'),
-        layers.BatchNormalization(),
-        layers.Dropout(0.3),
-        layers.Dense(num_classes, activation='softmax')
-    ])
-    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
-                  loss='categorical_crossentropy',
-                  metrics=['accuracy'])
-    return model
-
-# Define the Xception model using the provided function
-def get_xception_model(input_shape=(128, 128, 3), num_classes=2):
-    input = tf.keras.Input(shape=input_shape)
-    xception_base = Xception(weights="imagenet", include_top=False, input_tensor=input)
-    x = tf.keras.layers.GlobalAveragePooling2D()(xception_base.output)
-    x = tf.keras.layers.Dense(512, activation='relu')(x)
-    x = tf.keras.layers.BatchNormalization()(x)
-    x = tf.keras.layers.Dropout(0.3)(x)
-    output = tf.keras.layers.Dense(num_classes, activation='softmax')(x)
-    model = tf.keras.Model(inputs=xception_base.input, outputs=output)
-    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
-                  loss='categorical_crossentropy',
-                  metrics=['accuracy'])
-    return model
-
-# Load the models with weights
+# Load the ResNet50 model
 try:
-    model_resnet = get_resnet50_model()
-    model_resnet.load_weights(model_path_resnet)
+    model_resnet = load_model(model_path_resnet)
     st.success("ResNet50 model loaded successfully.")
 except Exception as e:
     st.error(f"Failed to load the ResNet50 model: {str(e)}")
 
+# Load the Xception model
 try:
-    model_xception = get_xception_model()
-    model_xception.load_weights(model_path_xception)
+    model_xception = load_model(model_path_xception)
     st.success("Xception model loaded successfully.")
 except Exception as e:
     st.error(f"Failed to load the Xception model: {str(e)}")
