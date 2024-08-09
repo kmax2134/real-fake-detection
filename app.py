@@ -41,8 +41,8 @@ def load_models():
     resnet_model = build_resnet50_model()
     xception_model = build_xception_model()
     
-    resnet_weights_path = '/kaggle/input/resnet50-weights/completed_trained_model.h5'
-    xception_weights_path = '/kaggle/input/xception-weights/completed_trained_model.h5'
+    resnet_weights_path = 'resnet50.h5'
+    xception_weights_path = 'xception.h5'
     
     load_model_weights(resnet_model, resnet_weights_path)
     load_model_weights(xception_model, xception_weights_path)
