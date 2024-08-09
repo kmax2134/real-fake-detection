@@ -70,21 +70,25 @@ def preprocess_image_xception(img):
     img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
     return preprocess_input_xception(img_array)
 
-# Function to make predictions
-def predict_image(img, model, preprocess_func):
-    img_array = preprocess_func(img)
+# Function to make predictions with ResNet50
+def predict_image_resnet(img, model):
+    img_array = preprocess_image_resnet(img)
     prediction = model.predict(img_array)
     predicted_class = np.argmax(prediction, axis=1)[0]
-    predicted_label = class_labels[predicted_class]
     confidence = prediction[0][predicted_class]
-    return predicted_label, confidence
+    return predicted_class, confidence
+
+# Function to make predictions with Xception
+def predict_image_xception(img, model):
+    img_array = preprocess_image_xception(img)
+    prediction = model.predict(img_array)
+    predicted_class = np.argmax(prediction, axis=1)[0]
+    confidence = prediction[0][predicted_class]
+    return predicted_class, confidence
 
 # Streamlit UI
 st.title("Real vs Fake Image Detection using ResNet50 and Xception")
 st.write("Upload an image to classify it as Real or Fake.")
-
-# Model selection
-model_choice = st.selectbox("Choose a model", ("ResNet50", "Xception"))
 
 # Single image uploader
 uploaded_file = st.file_uploader("Choose an image...", type=['jpg', 'jpeg', 'png'])
@@ -103,11 +107,22 @@ if uploaded_file is not None:
     st.image(image, caption='Uploaded Image', use_column_width=True)
     
     with st.spinner('Classifying...'):
-        if model_choice == "ResNet50":
-            label, confidence = predict_image(image, model_resnet, preprocess_image_resnet)
+        # Predict with ResNet50
+        resnet_class, resnet_confidence = predict_image_resnet(image, model_resnet)
+        
+        # Predict with Xception
+        xception_class, xception_confidence = predict_image_xception(image, model_xception)
+        
+        # Calculate average confidence
+        avg_confidence = (resnet_confidence + xception_confidence) / 2
+        
+        # Determine the final prediction based on the average confidence
+        if resnet_class == xception_class:
+            predicted_label = class_labels[resnet_class]
         else:
-            label, confidence = predict_image(image, model_xception, preprocess_image_xception)
-        display_result(label, confidence)
+            predicted_label = class_labels[np.argmax([resnet_confidence, xception_confidence])]
+        
+        display_result(predicted_label, avg_confidence)
 
 # Multiple images prediction
 if uploaded_files:
@@ -117,10 +132,19 @@ if uploaded_files:
         st.image(image, caption=f'Image: {file.name}', use_column_width=True)
         
         with st.spinner(f'Classifying {file.name}...'):
-            if model_choice == "ResNet50":
-                label, confidence = predict_image(image, model_resnet, preprocess_image_resnet)
+            # Predict with ResNet50
+            resnet_class, resnet_confidence = predict_image_resnet(image, model_resnet)
+            
+            # Predict with Xception
+            xception_class, xception_confidence = predict_image_xception(image, model_xception)
+            
+            # Calculate average confidence
+            avg_confidence = (resnet_confidence + xception_confidence) / 2
+            
+            # Determine the final prediction based on the average confidence
+            if resnet_class == xception_class:
+                predicted_label = class_labels[resnet_class]
             else:
-                label, confidence = predict_image(image, model_xception, preprocess_image_xception)
-            display_result(label, confidence)
-
-
+                predicted_label = class_labels[np.argmax([resnet_confidence, xception_confidence])]
+            
+            display_result(predicted_label, avg_confidence)
