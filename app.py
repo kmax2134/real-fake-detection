@@ -15,18 +15,14 @@ try:
 except Exception as e:
     st.error(f"Error loading DenseNet121 model: {e}")
 
+# Function to preprocess and predict using a specified model
 def preprocess_and_predict(image_path, model, preprocess_input, target_size):
-    try:
-        img = image.load_img(image_path, target_size=target_size)
-        img_array = image.img_to_array(img)
-        img_array = np.expand_dims(img_array, axis=0)
-        img_array = preprocess_input(img_array)
-        predictions = model.predict(img_array)
-        return predictions
-    except Exception as e:
-        st.error(f"Error during prediction: {e}")
-        return None
-
+    img = image.load_img(image_path, target_size=target_size)
+    img_array = image.img_to_array(img)
+    img_array = np.expand_dims(img_array, axis=0)
+    img_array = preprocess_input(img_array)
+    predictions = model.predict(img_array)
+    return predictions
 
 # Function to interpret predictions
 def interpret_predictions(predictions):
@@ -58,13 +54,8 @@ if uploaded_file is not None:
 
 
     # Predict using DenseNet121
- if densenet_model:
-    st.subheader("DenseNet121 Prediction")
-    densenet_predictions = preprocess_and_predict(temp_file_path, densenet_model, densenet_preprocess_input, (224, 224))
-    
-    if densenet_predictions is not None:
-        st.write(f"Predictions shape: {densenet_predictions.shape}")
-        st.write(f"Model output shape: {densenet_model.output_shape}")
-
+    if densenet_model:
+        st.subheader("DenseNet121 Prediction")
+        densenet_predictions = preprocess_and_predict(temp_file_path, densenet_model, densenet_preprocess_input, (224, 224))
         densenet_label, densenet_confidence = interpret_predictions(densenet_predictions)
         st.write(f"Prediction: {densenet_label} (Confidence: {densenet_confidence:.2f})")
