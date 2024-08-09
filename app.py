@@ -14,7 +14,7 @@ class_labels = ['Fake', 'Real']
 # Function to define the ResNet50 model
 def get_resnet50_model(input_shape=(128, 128, 3), num_classes=2):
     input = tf.keras.Input(shape=input_shape)
-    resnet_base = ResNet50(weights='imagenet', include_top=False, input_tensor=input)
+    resnet_base = ResNet50(weights=None, include_top=False, input_tensor=input)
     x = tf.keras.layers.GlobalAveragePooling2D()(resnet_base.output)
     x = tf.keras.layers.Dense(512, activation='relu')(x)
     x = tf.keras.layers.BatchNormalization()(x)
