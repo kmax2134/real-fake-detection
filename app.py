@@ -7,8 +7,8 @@ from tensorflow.keras import layers, Sequential
 from PIL import Image
 
 # Paths to saved models (Update these paths to your actual model files)
-model_path_resnet = 'path_to_resnet_model.h5'
-model_path_xception = 'path_to_xception_model.h5'
+model_path_resnet = 'resnet50.h5'
+model_path_xception = 'xception.h5'
 
 # Define class labels (Adjust these labels according to your dataset)
 class_labels = ['Fake', 'Real']
