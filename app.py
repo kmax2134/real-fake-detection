@@ -1,17 +1,16 @@
 import streamlit as st
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.applications import Xception
+from tensorflow.keras.applications import Xception, ResNet50
 from tensorflow.keras.applications.xception import preprocess_input as preprocess_input_xception
-from tensorflow.keras.applications.densenet import preprocess_input as densenet_preprocess_input
+from tensorflow.keras.applications.resnet50 import preprocess_input as preprocess_input_resnet
 from tensorflow.keras.preprocessing import image as keras_image
 from tensorflow.keras.models import load_model
 from PIL import Image
-import os
 
 # Paths to saved model files (Update these paths to your actual model files)
 model_path_xception = 'xception.h5'  # Replace with your Xception model path
-model_path_densenet = 'densenet121.keras'  # Replace with your DenseNet121 model path
+model_path_resnet = 'resnet50.h5'      # Replace with your ResNet model path
 
 # Define class labels (Adjust these labels according to your dataset)
 class_labels = ['Fake', 'Real']
@@ -28,12 +27,25 @@ def get_xception_model(input_shape=(128, 128, 3), num_classes=2):
     model = tf.keras.Model(inputs=xception_base.input, outputs=output)
     return model
 
+# Function to define the ResNet50 model
+def get_resnet50_model(input_shape=(128, 128, 3), num_classes=2):
+    input = tf.keras.Input(shape=input_shape)
+    resnet_base = ResNet50(weights='imagenet', include_top=False, input_tensor=input)
+    x = tf.keras.layers.GlobalAveragePooling2D()(resnet_base.output)
+    x = tf.keras.layers.Dense(512, activation='relu')(x)
+    x = tf.keras.layers.BatchNormalization()(x)
+    x = tf.keras.layers.Dropout(0.3)(x)
+    output = tf.keras.layers.Dense(num_classes, activation='softmax')(x)
+    model = tf.keras.Model(inputs=resnet_base.input, outputs=output)
+    return model
+
 # Load the models with weights
 try:
     model_xception = get_xception_model()
     model_xception.load_weights(model_path_xception)
 
-    model_densenet = tf.keras.models.load_model(model_path_densenet)
+    model_resnet = get_resnet50_model()
+    model_resnet.load_weights(model_path_resnet)
 
     st.success("Models loaded successfully.")
 except Exception as e:
@@ -47,8 +59,8 @@ def preprocess_image(img, model_name):
 
     if model_name == 'Xception':
         return preprocess_input_xception(img_array)
-    elif model_name == 'DenseNet121':
-        return densenet_preprocess_input(img_array)
+    elif model_name == 'ResNet50':
+        return preprocess_input_resnet(img_array)
 
 # Function to make predictions
 def predict_image(img, model, model_name):
@@ -66,11 +78,11 @@ st.write("Upload an image to classify it as Real or Fake.")
 # Model selection
 model_option = st.selectbox(
     "Select the model to use:",
-    ("Xception", "DenseNet121")
+    ("Xception", "ResNet50")
 )
 
 # Load the selected model
-selected_model = model_xception if model_option == "Xception" else model_densenet
+selected_model = model_xception if model_option == "Xception" else model_resnet
 
 # Confidence threshold slider
 confidence_threshold = st.slider(
