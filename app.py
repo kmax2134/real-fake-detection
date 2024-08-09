@@ -10,8 +10,13 @@ from tensorflow.keras.applications.densenet import preprocess_input as densenet_
 densenet_model_path = 'densenet121.keras'
 
 try:
-    densenet_model = tf.keras.models.load_model(densenet_model_path)
+    # Load the model within a CustomObjectScope if necessary
+    with tf.keras.utils.custom_object_scope({'DenseNet121': tf.keras.applications.DenseNet121}):
+        densenet_model = tf.keras.models.load_model(densenet_model_path)
+
     st.success("DenseNet121 model loaded successfully.")
+    st.write(densenet_model.summary())  # Display model summary for verification
+
 except Exception as e:
     st.error(f"Error loading DenseNet121 model: {e}")
     st.stop()  # Stop execution if the model can't be loaded
@@ -27,6 +32,7 @@ def preprocess_and_predict(image_path, model, preprocess_input, target_size):
         # Debugging: Log image array shape
         st.write(f"Image array shape: {img_array.shape}")
 
+        # Prediction
         predictions = model.predict(img_array)
         return predictions
     except Exception as e:
@@ -78,4 +84,3 @@ if uploaded_file is not None:
             st.write(f"Prediction: {densenet_label} (Confidence: {densenet_confidence:.2f})")
         else:
             st.error("Failed to make a prediction.")
-
