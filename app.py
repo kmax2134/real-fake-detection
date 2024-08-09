@@ -122,3 +122,57 @@ if uploaded_files:
             else:
                 label, confidence = predict_image(image, model_xception, preprocess_image_xception)
             display_result(label, confidence)
+# Function to predict using both models and return the consensus prediction
+def ensemble_predict(img):
+    # Preprocess the image for both models
+    img_resnet = preprocess_image_resnet(img)
+    img_xception = preprocess_image_xception(img)
+
+    # Get predictions for both models
+    prediction_resnet = model_resnet.predict(img_resnet)
+    prediction_xception = model_xception.predict(img_xception)
+
+    # Extract predicted classes and confidence scores
+    predicted_class_resnet = np.argmax(prediction_resnet, axis=1)[0]
+    predicted_class_xception = np.argmax(prediction_xception, axis=1)[0]
+
+    confidence_resnet = prediction_resnet[0][predicted_class_resnet]
+    confidence_xception = prediction_xception[0][predicted_class_xception]
+
+    # Ensemble voting logic
+    if predicted_class_resnet == predicted_class_xception:
+        # If both models agree, use that prediction
+        final_prediction = class_labels[predicted_class_resnet]
+        final_confidence = (confidence_resnet + confidence_xception) / 2  # Average confidence
+    else:
+        # If models disagree, you can choose a strategy
+        # Here we use confidence scores to decide
+        if confidence_resnet > confidence_xception:
+            final_prediction = class_labels[predicted_class_resnet]
+            final_confidence = confidence_resnet
+        else:
+            final_prediction = class_labels[predicted_class_xception]
+            final_confidence = confidence_xception
+
+    return final_prediction, final_confidence
+
+# Streamlit UI for ensemble prediction
+if uploaded_file is not None:
+    image = Image.open(uploaded_file)
+    st.image(image, caption='Uploaded Image', use_column_width=True)
+
+    with st.spinner('Classifying...'):
+        label, confidence = ensemble_predict(image)
+        display_result(label, confidence)
+
+# Multiple images prediction using ensemble
+if uploaded_files:
+    st.write("Batch Prediction Results:")
+    for file in uploaded_files:
+        image = Image.open(file)
+        st.image(image, caption=f'Image: {file.name}', use_column_width=True)
+
+        with st.spinner(f'Classifying {file.name}...'):
+            label, confidence = ensemble_predict(image)
+            display_result(label, confidence)
+
