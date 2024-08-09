@@ -97,9 +97,14 @@ uploaded_file = st.file_uploader("Choose an image...", type=['jpg', 'jpeg', 'png
 uploaded_files = st.file_uploader("Choose multiple images...", type=['jpg', 'jpeg', 'png'], accept_multiple_files=True)
 
 # Function to display the result
-def display_result(label, confidence):
-    st.write(f"Prediction: **{label}**")
-    st.write(f"Confidence: **{confidence * 100:.2f}%**")
+def display_result(label, confidence, model_name):
+    st.write(f"{model_name} Prediction: **{label}**")
+    st.write(f"{model_name} Confidence: **{confidence * 100:.2f}%**")
+
+# Function to display the final result
+def display_final_result(label, confidence):
+    st.write(f"**Final Prediction (Average): {label}**")
+    st.write(f"**Final Confidence (Average): {confidence * 100:.2f}%**")
 
 # Single image prediction
 if uploaded_file is not None:
@@ -109,20 +114,27 @@ if uploaded_file is not None:
     with st.spinner('Classifying...'):
         # Predict with ResNet50
         resnet_class, resnet_confidence = predict_image_resnet(image, model_resnet)
+        resnet_label = class_labels[resnet_class]
         
         # Predict with Xception
         xception_class, xception_confidence = predict_image_xception(image, model_xception)
+        xception_label = class_labels[xception_class]
         
-        # Calculate average confidence
+        # Display individual model results
+        display_result(resnet_label, resnet_confidence, "ResNet50")
+        display_result(xception_label, xception_confidence, "Xception")
+        
+        # Calculate average confidence and prediction
         avg_confidence = (resnet_confidence + xception_confidence) / 2
         
         # Determine the final prediction based on the average confidence
         if resnet_class == xception_class:
-            predicted_label = class_labels[resnet_class]
+            final_predicted_label = resnet_label
         else:
-            predicted_label = class_labels[np.argmax([resnet_confidence, xception_confidence])]
+            # Choose the label with the higher confidence score
+            final_predicted_label = resnet_label if resnet_confidence > xception_confidence else xception_label
         
-        display_result(predicted_label, avg_confidence)
+        display_final_result(final_predicted_label, avg_confidence)
 
 # Multiple images prediction
 if uploaded_files:
@@ -134,17 +146,24 @@ if uploaded_files:
         with st.spinner(f'Classifying {file.name}...'):
             # Predict with ResNet50
             resnet_class, resnet_confidence = predict_image_resnet(image, model_resnet)
+            resnet_label = class_labels[resnet_class]
             
             # Predict with Xception
             xception_class, xception_confidence = predict_image_xception(image, model_xception)
+            xception_label = class_labels[xception_class]
             
-            # Calculate average confidence
+            # Display individual model results
+            display_result(resnet_label, resnet_confidence, "ResNet50")
+            display_result(xception_label, xception_confidence, "Xception")
+            
+            # Calculate average confidence and prediction
             avg_confidence = (resnet_confidence + xception_confidence) / 2
             
             # Determine the final prediction based on the average confidence
             if resnet_class == xception_class:
-                predicted_label = class_labels[resnet_class]
+                final_predicted_label = resnet_label
             else:
-                predicted_label = class_labels[np.argmax([resnet_confidence, xception_confidence])]
+                # Choose the label with the higher confidence score
+                final_predicted_label = resnet_label if resnet_confidence > xception_confidence else xception_label
             
-            display_result(predicted_label, avg_confidence)
+            display_final_result(final_predicted_label, avg_confidence)
